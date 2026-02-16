@@ -16,9 +16,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY . .
 
-RUN pip install --no-chache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-RUN python pipeline/training_pipeline.pyc
+RUN python pipeline/training_pipeline.py
 
 EXPOSE 5000
 
