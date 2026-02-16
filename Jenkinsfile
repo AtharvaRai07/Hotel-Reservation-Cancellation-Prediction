@@ -4,7 +4,7 @@ pipeline{
     environment {
         VENV_DIR = 'venv'
         GCP_PROJECT = "encoded-joy-418604"
-        GCLOUD_PATH = "/var/jenkins_homs/google-cloud-sdk/bin"
+        GCLOUD_PATH = "/var/jenkins_homes/google-cloud-sdk/bin"
     }
 
     stages{
