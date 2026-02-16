@@ -16,15 +16,32 @@ pipeline{
             }
         }
 
-        stage('Setting up Virtual Environment and Installing Dependencies'){
+        stage('Setting up our Virtual Environment and Installing dependancies'){
             steps{
                 script{
-                    echo 'Setting up Virtual Environment and Installing Dependencies............'
+                    echo 'Setting up our Virtual Environment and Installing dependancies............'
                     sh '''
                     python -m venv ${VENV_DIR}
                     . ${VENV_DIR}/bin/activate
                     pip install --upgrade pip
-                    pip install -r requirements.txt .
+                    pip install -r requirements.txt
+                    '''
+                }
+            }
+        }
+
+        stage('Install GCloud SDK'){
+            steps{
+                script{
+                    echo 'Installing Google Cloud SDK............'
+                    sh '''
+                    apt-get update
+                    apt-get install -y curl apt-transport-https ca-certificates gnupg lsb-release
+                    curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
+                    echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+                    apt-get update
+                    apt-get install -y google-cloud-sdk
+                    gcloud version
                     '''
                 }
             }
