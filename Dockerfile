@@ -18,8 +18,6 @@ COPY . .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-RUN python pipeline/training_pipeline.py
-
 EXPOSE 5000
 
 CMD ["python", "app.py"]
