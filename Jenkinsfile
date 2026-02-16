@@ -35,12 +35,13 @@ pipeline{
                 script{
                     echo 'Installing Google Cloud SDK............'
                     sh '''
-                    apt-get update
-                    apt-get install -y curl apt-transport-https ca-certificates gnupg lsb-release
-                    curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
-                    echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-                    apt-get update
-                    apt-get install -y google-cloud-sdk
+                    if [ ! -d "$HOME/google-cloud-sdk" ]; then
+                        curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-linux-x86_64.tar.gz
+                        tar -xf google-cloud-cli-linux-x86_64.tar.gz -C $HOME
+                        $HOME/google-cloud-sdk/install.sh --quiet --usage-reporting=false --path-update=true
+                        rm google-cloud-cli-linux-x86_64.tar.gz
+                    fi
+                    export PATH=$HOME/google-cloud-sdk/bin:$PATH
                     gcloud version
                     '''
                 }
@@ -54,6 +55,8 @@ pipeline{
                     script{
                         echo 'Building and Pushing Docker Image to GCR.............'
                         sh '''
+                        export PATH=$HOME/google-cloud-sdk/bin:$PATH
+
                         gcloud auth activate-service-account --key-file="${GOOGLE_APPLICATION_CREDENTIALS}"
 
                         gcloud config set project ${GCP_PROJECT}
@@ -75,6 +78,8 @@ pipeline{
                     script{
                         echo 'Deploying to Cloud Run.............'
                         sh '''
+                        export PATH=$HOME/google-cloud-sdk/bin:$PATH
+
                         gcloud auth activate-service-account --key-file="${GOOGLE_APPLICATION_CREDENTIALS}"
 
                         gcloud config set project ${GCP_PROJECT}
