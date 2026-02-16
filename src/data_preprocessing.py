@@ -2,6 +2,7 @@ import os
 import sys
 import pandas as pd
 import numpy as np
+import joblib
 from src.logger import get_logger
 from src.custom_exception import CustomException
 from config.paths_config import *
@@ -35,12 +36,14 @@ class DataPreprocessor:
 
             logger.info("Applying Label Encoding")
 
-            label_encoder = LabelEncoder()
             mappings = {}
+            encoders = {}
 
             for col in cat_cols:
-                df[col] = label_encoder.fit_transform(df[col])
-                mappings[col] = {label:code for label, code in zip(label_encoder.classes_,label_encoder.transform(label_encoder.classes_))}
+                le = LabelEncoder()
+                df[col] = le.fit_transform(df[col])
+                mappings[col] = {label:code for label, code in zip(le.classes_,le.transform(le.classes_))}
+                encoders[col] = le
 
             logger.info(f"Label mappings are : \n {mappings}")
 
@@ -50,6 +53,8 @@ class DataPreprocessor:
             skewness = df[num_cols].apply(lambda x:x.skew())
             for column in skewness[skewness > skew_threshold].index:
                 df[column] = np.log1p(df[column])
+
+            joblib.dump(encoders, ENCODER_PATH)
 
             return df
 

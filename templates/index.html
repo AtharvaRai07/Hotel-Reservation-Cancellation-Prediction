@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hotel Reservation Predictor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="/static/style.css" />
+</head>
+
+<body>
+    <div class="bg-orb orb-1" aria-hidden="true"></div>
+    <div class="bg-orb orb-2" aria-hidden="true"></div>
+    <div class="noise" aria-hidden="true"></div>
+
+    <main class="page">
+        <header class="hero">
+            <div>
+                <p class="eyebrow">Hotel AI Lab</p>
+                <h1>Reservation Cancellation Prediction</h1>
+                <p class="subtitle">
+                    Enter the booking details and get a clear prediction. Designed for
+                    quick, accurate checks with a calm, premium feel.
+                </p>
+            </div>
+            {% if prediction_text %}
+            <div class="hero-card">
+                <h2>Prediction</h2>
+                <p class="hero-result">{{ prediction_text }}</p>
+                <div class="hero-meta">
+                    <span>Model: Hotel Reservation v1</span>
+                    <span>Status: Ready</span>
+                </div>
+            </div>
+            {% endif %}
+        </header>
+
+        <section class="content">
+            <form class="form" method="post" action="/">
+                <div class="form-header">
+                    <h3>Guest and Stay Details</h3>
+                    <p>Fields are based on the training data schema.</p>
+                </div>
+
+                <div class="form-grid">
+                    <label class="field" style="--i: 1">
+                        <span>Lead Time (days)</span>
+                        <input type="number" id="lead_time" name="lead_time" min="0" max="500" value="90" required />
+                    </label>
+                    <label class="field" style="--i: 2">
+                        <span>Special Requests</span>
+                        <input type="number" id="special_requests" name="special_requests" min="0" max="5" value="1"
+                            required />
+                    </label>
+                    <label class="field" style="--i: 3">
+                        <span>Avg Price / Room</span>
+                        <input type="number" id="avg_price" name="avg_price" min="0" max="500" step="0.01" value="120"
+                            required />
+                    </label>
+                    <label class="field" style="--i: 4">
+                        <span>Arrival Month</span>
+                        <input type="number" id="arrival_month" name="arrival_month" min="1" max="12" value="7"
+                            required />
+                    </label>
+                    <label class="field" style="--i: 5">
+                        <span>Arrival Date</span>
+                        <input type="number" id="arrival_date" name="arrival_date" min="1" max="31" value="15"
+                            required />
+                    </label>
+                    <label class="field" style="--i: 6">
+                        <span>Market Segment</span>
+                        <select id="market_segment" name="market_segment" required>
+                            <option value="Online">Online</option>
+                            <option value="Offline">Offline</option>
+                            <option value="Corporate">Corporate</option>
+                            <option value="Complementary">Complementary</option>
+                            <option value="Aviation">Aviation</option>
+                        </select>
+                    </label>
+                    <label class="field" style="--i: 7">
+                        <span>Week Nights</span>
+                        <input type="number" id="week_nights" name="week_nights" min="0" max="14" value="2" required />
+                    </label>
+                    <label class="field" style="--i: 8">
+                        <span>Weekend Nights</span>
+                        <input type="number" id="weekend_nights" name="weekend_nights" min="0" max="7" value="1"
+                            required />
+                    </label>
+                    <label class="field" style="--i: 9">
+                        <span>Meal Plan</span>
+                        <select id="meal_plan" name="meal_plan" required>
+                            <option value="Meal Plan 1">Meal Plan 1</option>
+                            <option value="Meal Plan 2">Meal Plan 2</option>
+                            <option value="Meal Plan 3">Meal Plan 3</option>
+                            <option value="Not Selected">Not Selected</option>
+                        </select>
+                    </label>
+                    <label class="field" style="--i: 10">
+                        <span>Room Type</span>
+                        <select id="room_type" name="room_type" required>
+                            <option value="Room_Type 1">Room Type 1</option>
+                            <option value="Room_Type 2">Room Type 2</option>
+                            <option value="Room_Type 3">Room Type 3</option>
+                            <option value="Room_Type 4">Room Type 4</option>
+                            <option value="Room_Type 5">Room Type 5</option>
+                            <option value="Room_Type 6">Room Type 6</option>
+                            <option value="Room_Type 7">Room Type 7</option>
+                        </select>
+                    </label>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="cta">Predict</button>
+                    <p class="helper">We never store guest names or personal identifiers.</p>
+                </div>
+            </form>
+
+            <aside class="panel">
+                <h3>Usage Notes</h3>
+                <ul>
+                    <li>Use real booking values when possible for best accuracy.</li>
+                    <li>Lead time is the number of days between booking and arrival.</li>
+                    <li>Room and market options match the training categories.</li>
+                </ul>
+                <div class="panel-card">
+                    <h4>Tip</h4>
+                    <p>Higher lead times and more special requests often change risk signals.</p>
+                </div>
+            </aside>
+        </section>
+    </main>
+</body>
+
+</html>
