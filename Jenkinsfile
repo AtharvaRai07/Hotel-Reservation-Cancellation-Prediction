@@ -3,7 +3,8 @@ pipeline{
 
     environment {
         VENV_DIR = 'venv'
-        GCP_PROJECT = "encoded-joy-418604"
+        GCP_PROJECT = "mlops-new-447207"
+        GCLOUD_PATH = "/var/jenkins_home/google-cloud-sdk/bin"
     }
 
     stages{
@@ -12,6 +13,7 @@ pipeline{
                 script{
                     echo 'Cloning Github repo to Jenkins............'
                     checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'github token', url: 'https://github.com/AtharvaRai07/Hotel-Reservation-Cancellation-Prediction.git']])
+                    }
                 }
             }
         }
@@ -24,30 +26,11 @@ pipeline{
                     python -m venv ${VENV_DIR}
                     . ${VENV_DIR}/bin/activate
                     pip install --upgrade pip
-                    pip install -r requirements.txt
+                    pip install -e .
                     '''
                 }
             }
         }
-
-        stage('Install GCloud SDK'){
-            steps{
-                script{
-                    echo 'Installing Google Cloud SDK............'
-                    sh '''
-                    if [ ! -d "$HOME/google-cloud-sdk" ]; then
-                        curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-linux-x86_64.tar.gz
-                        tar -xf google-cloud-cli-linux-x86_64.tar.gz -C $HOME
-                        $HOME/google-cloud-sdk/install.sh --quiet --usage-reporting=false --path-update=true
-                        rm google-cloud-cli-linux-x86_64.tar.gz
-                    fi
-                    export PATH=$HOME/google-cloud-sdk/bin:$PATH
-                    gcloud version
-                    '''
-                }
-            }
-        }
-
 
         stage('Building and Pushing Docker Image to GCR'){
             steps{
@@ -55,34 +38,36 @@ pipeline{
                     script{
                         echo 'Building and Pushing Docker Image to GCR.............'
                         sh '''
-                        export PATH=$HOME/google-cloud-sdk/bin:$PATH
+                        export PATH=$PATH:${GCLOUD_PATH}
 
-                        gcloud auth activate-service-account --key-file="${GOOGLE_APPLICATION_CREDENTIALS}"
+
+                        gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
 
                         gcloud config set project ${GCP_PROJECT}
 
-                        gcloud auth configure-docker gcr.io --quiet
+                        gcloud auth configure-docker --quiet
 
                         docker build -t gcr.io/${GCP_PROJECT}/ml-project:latest .
 
-                        docker push gcr.io/${GCP_PROJECT}/ml-project:latest --all-tags
+                        docker push gcr.io/${GCP_PROJECT}/ml-project:latest
 
-                        echo "Docker image pushed successfully!"
                         '''
                     }
                 }
             }
         }
 
-        stage('Deploy to Cloud Run'){
+
+        stage('Deploy to Google Cloud Run'){
             steps{
                 withCredentials([file(credentialsId: 'gcp-key' , variable : 'GOOGLE_APPLICATION_CREDENTIALS')]){
                     script{
-                        echo 'Deploying to Cloud Run.............'
+                        echo 'Deploy to Google Cloud Run.............'
                         sh '''
-                        export PATH=$HOME/google-cloud-sdk/bin:$PATH
+                        export PATH=$PATH:${GCLOUD_PATH}
 
-                        gcloud auth activate-service-account --key-file="${GOOGLE_APPLICATION_CREDENTIALS}"
+
+                        gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
 
                         gcloud config set project ${GCP_PROJECT}
 
@@ -91,11 +76,12 @@ pipeline{
                             --platform=managed \
                             --region=us-central1 \
                             --allow-unauthenticated
+
                         '''
                     }
                 }
             }
         }
+
     }
 }
-
